@@ -1,0 +1,268 @@
+<div class="session-container fade-in">
+  <header class="session-header">
+    <h1>Session {{ sessionId() }}</h1>
+    <p class="subtitle">{{ sessionTitle() }}</p>
+  </header>
+
+  @if (error(); as errorMessage) {
+    <div class="alert error-box" role="alert">
+      <span class="warning-icon">⚠</span> {{ errorMessage }}
+    </div>
+  }
+
+  @if (!data() && !isLoading()) {
+  <div class="upload-hud glass-card fade-in">
+    @if (!isGenerating()) {
+    <div class="hud-header">
+      <div class="hud-badge">ADMIN MODE</div>
+      <h2>Session {{ sessionId() }} — Live Pipeline</h2>
+    </div>
+    
+    <div class="hud-form">
+      <div class="input-group">
+        <label>Select Intelligence Model</label>
+        <select [ngModel]="selectedModel()" (ngModelChange)="setSelectedModel($event)" class="model-select" aria-label="Select Gemini model">
+          @for (model of availableModels(); track model) {
+            <option [value]="model">{{ model }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>YouTube Video URL</label>
+        <input type="url" [ngModel]="adminUrl()" (ngModelChange)="setAdminUrl($event)" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      
+      <div class="input-group">
+        <label>Session Transcript</label>
+        <textarea [ngModel]="adminTranscript()" (ngModelChange)="setAdminTranscript($event)" placeholder="Paste the raw YouTube transcript here..."></textarea>
+      </div>
+
+      <button class="gen-btn" [disabled]="!adminUrl().trim() || !adminTranscript().trim()" (click)="generateSessionLive()">
+        <span class="btn-icon">⚡</span> Start Global Pipeline
+      </button>
+    </div>
+
+    <div class="hud-footer">
+      <p>This bypasses any terminal scripts. Click "Start" to populate the dashboard live using your <strong>Project Gemini credentials</strong>.</p>
+    </div>
+    } @else {
+    <div class="processing-state fade-in">
+      <div class="processing-animation">
+        <div class="gemini-pulse"></div>
+        <div class="gemini-core"></div>
+      </div>
+      <h2>Orchestrating Gemini...</h2>
+      <p class="processing-subtitle">Analyzing transcript and extracting structured insights. This may take a minute.</p>
+      
+      <div class="processing-steps">
+        <div class="step completed">
+          <span class="step-icon">✓</span>
+          <span>Reading Transcript</span>
+        </div>
+        <div class="step active">
+          <span class="step-icon spinner"></span>
+          <span>Synthesizing Session Structure</span>
+        </div>
+        <div class="step pending">
+          <span class="step-icon">⚪</span>
+          <span>Extracting Key Questions</span>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  @if (data() && adminTranscript()) {
+  <div class="success-hud glass-card fade-in" role="status" aria-live="polite">
+    <div class="success-content">
+      <div class="success-icon-wrapper">
+        <div class="success-icon">✨</div>
+      </div>
+      <div class="success-text">
+        <h3>Session Logic Generated!</h3>
+        <p>The dashboard below is now live. To keep these notes persistent, download the JSON and move it to your <strong>public/data/</strong> folder.</p>
+      </div>
+      <button class="save-btn primary-glow" (click)="downloadJson()">
+        <span class="dl-icon">⬇</span> Download session-{{ sessionId() }}.json
+      </button>
+    </div>
+  </div>
+  }
+
+  @if (data(); as sessionData) {
+  @if (!isLoading()) {
+  <button type="button" class="skip-forum-btn" (click)="focusForumSearch()">
+    Skip video and jump to forum filters
+  </button>
+  <div class="content-grid">
+    <div class="video-col">
+      <section #videoSection class="video-section glass-card">
+        @if (safeVideoUrl(); as videoUrl) {
+        <div class="video-wrapper" [class.floating-active]="isFloating()">
+          <iframe 
+            [src]="videoUrl" 
+            title="YouTube video player" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+        }
+      </section>
+    </div>
+
+    <div class="nav-col">
+      <section class="summary-section glass-card sticky-card">
+        <div class="summary-header">
+          <h3>Course Navigation</h3>
+        </div>
+
+        @if (sessionData.summary.length) {
+        <div class="timestamps">
+          @for (item of sessionData.summary; track item.timestamp + item.title) {
+          <div class="time-item">
+            <button type="button" (click)="seekTo(item.timestamp)" class="time-badge clickable" [attr.aria-label]="'Jump to ' + item.timestamp">
+              {{ item.timestamp }}
+            </button>
+            <span class="time-title">{{ item.title }}</span>
+          </div>
+          }
+        </div>
+        }
+      </section>
+    </div>
+
+    @if (hasSummarySection()) {
+    <section class="session-summary-panel full-width-section glass-card">
+      <div class="session-summary-heading">
+        <div>
+          <p class="eyebrow">Session Brief</p>
+          <h3 class="section-title">Session Summary</h3>
+        </div>
+        <span class="summary-pill">{{ estimatedRuntime() }}</span>
+      </div>
+
+      <div class="session-summary-layout">
+        @if (learningInsights().length) {
+        <section class="summary-learning-panel">
+          <div class="summary-learning-header">
+            <h4>What The Instructor Taught</h4>
+            <p>This is the distilled teaching arc from the session transcript, not just a list of timestamps.</p>
+          </div>
+
+          <div class="learning-insight-list">
+            @for (insight of learningInsights(); track insight.title; let index = $index) {
+            <article class="learning-insight-card">
+              <span class="learning-insight-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
+              <div class="learning-insight-copy">
+                <h5>{{ insight.title }}</h5>
+                <p>{{ insight.body }}</p>
+              </div>
+            </article>
+            }
+          </div>
+        </section>
+        }
+
+        <aside class="summary-meta-column">
+          <section class="summary-overview-card">
+            <span class="summary-card-label">Overview</span>
+            <p class="summary-overview-copy">{{ sessionOverview() }}</p>
+          </section>
+
+          <section class="summary-stats-column">
+            @for (stat of sessionStats(); track stat.label) {
+            <article class="summary-stat-card">
+              <span class="summary-stat-label">{{ stat.label }}</span>
+              <strong class="summary-stat-value">{{ stat.value }}</strong>
+              <p class="summary-stat-detail">{{ stat.detail }}</p>
+            </article>
+            }
+          </section>
+        </aside>
+      </div>
+    </section>
+    }
+
+    <section class="qna-section full-width-section">
+      <div class="qna-header-row">
+        <div class="qna-title-group">
+          <h3 class="section-title">Open Questions Forum</h3>
+          <span class="q-count glass-card" aria-live="polite">{{ filteredQa().length }} Total</span>
+        </div>
+        
+        <div class="qna-actions">
+          <div class="star-filter glass-card" role="group" aria-label="Technical depth filter">
+            <span class="filter-label">Technical Depth:</span>
+            <div class="stars-row">
+              @for (rating of ratingOptions; track rating) {
+                <button
+                  type="button"
+                  class="star clickable"
+                  [class.active]="ratingFilter() >= rating"
+                  [attr.aria-pressed]="ratingFilter() === rating"
+                  [attr.aria-label]="'Filter questions with rating ' + rating + ' or higher'"
+                  (click)="setRatingFilter(rating)">★</button>
+              }
+            </div>
+          </div>
+
+          <div class="search-box glass-card">
+            <span class="search-icon">🔍</span>
+            <input 
+              #forumSearchInput
+              type="search" 
+              [placeholder]="'Search through ' + (data()?.qa?.length ?? 0) + ' questions...'"
+              (input)="onSearch($event)"
+              [value]="searchQuery()"
+              aria-label="Search session questions">
+          </div>
+        </div>
+      </div>
+
+      @if (sessionData.qa.length) {
+      <div class="qa-list">
+        @if (filteredQa().length === 0) {
+        <div class="no-results">
+          <p>No questions match your current search or depth filter. Try adjusting them!</p>
+        </div>
+        }
+        
+          @for (item of filteredQa(); track item.timestamp + item.question) {
+          <details class="qa-item glass-card">
+            <summary class="q-box">
+              <span class="q-badge">Q</span>
+              <div class="q-content">
+                @if (item.timestamp) {
+                  <button type="button" class="q-timestamp clickable" (click)="seekTo(item.timestamp); $event.stopPropagation()" [attr.aria-label]="'Jump to question timestamp ' + item.timestamp">[{{ item.timestamp }}]</button>
+                }
+                @if (item.speaker) {
+                  <span class="q-speaker">{{ item.speaker }}: </span>
+                }
+                <h4 class="q-text">{{ item.question }}</h4>
+              </div>
+              <div class="q-actions-right">
+                <div class="item-rating">
+                  @for (rating of ratingOptions; track rating) {
+                    <span class="mini-star" [class.filled]="(item.rating || 1) >= rating">★</span>
+                  }
+                </div>
+                <span class="toggle-icon">▼</span>
+              </div>
+            </summary>
+            <div class="a-box">
+              <span class="a-badge">A</span>
+              <p>{{ item.answer }}</p>
+            </div>
+          </details>
+          }
+      </div>
+      }
+    </section>
+
+  </div>
+  }
+  }
+</div>

@@ -1,0 +1,66 @@
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-group">
+        <div class="logo-box">AI</div>
+        <h2>EAG v3</h2>
+      </div>
+      <button
+        type="button"
+        class="theme-switch"
+        [class.light]="!isDarkMode()"
+        (click)="toggleTheme()"
+        [attr.aria-label]="isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+        [title]="isDarkMode() ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        <div class="switch-knob">
+          {{ isDarkMode() ? '🌙' : '☀️' }}
+        </div>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Course session navigation">
+      @for (group of phaseGroups(); track group.phase) {
+        <div class="nav-module">
+          <h3 class="nav-title">{{ group.phase }}</h3>
+          <ul>
+            @for (session of group.sessions; track session.id) {
+              <li class="nav-item">
+                <a
+                  [routerLink]="['/session', session.id]"
+                  routerLinkActive="active"
+                  #sessionRouteActive="routerLinkActive"
+                  [class.locked]="session.isLocked"
+                  [attr.aria-current]="sessionRouteActive.isActive ? 'page' : null"
+                  [attr.aria-label]="session.isLocked ? 'Session ' + session.id + ' locked, open generation dashboard: ' + session.title : 'Session ' + session.id + ': ' + session.title"
+                  [title]="session.isLocked ? 'Session ' + session.id + ' is locked, click to open its generation dashboard' : 'Session ' + session.id + ': ' + session.title">
+                  <span class="icon">{{ session.isLocked ? '🔒' : '▶' }}</span>
+                  <div class="nav-content">
+                    <span class="nav-num">S{{ session.id }}</span>
+                    <span class="nav-text">{{ session.title }}</span>
+                  </div>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="progress-section">
+        <div class="progress-label">
+          <span class="progress-title">Course Progress</span>
+          <span class="progress-pct">{{ progressPercent() }}%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Course progress" [attr.aria-valuenow]="progressPercent()" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+        </div>
+        <p class="progress-sub">{{ unlockedSessions() }} of {{ totalSessions() }} sessions unlocked</p>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

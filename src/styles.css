@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* DARK THEME (Default) */
+  --bg-base: #0B0C10;
+  --bg-surface: #1F2833;
+  --bg-surface-hover: #293441;
+  --text-primary: #C5C6C7;
+  --text-secondary: #8E9BAE;
+  --accent-color: #66FCF1;
+  --accent-glow: rgba(102, 252, 241, 0.4);
+  --accent-neon: #66FCF1;
+  --accent-secondary: #45A29E;
+  --accent-contrast: #03131a;
+  --control-bg: rgba(8, 18, 28, 0.78);
+  --control-border: rgba(255, 255, 255, 0.14);
+  --error-text: #fecaca;
+  --error-bg: rgba(127, 29, 29, 0.28);
+  --error-border: rgba(248, 113, 113, 0.45);
+  
+  --border-color: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(31, 40, 51, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --sidebar-gradient: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98));
+  
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --font-main: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+body.light-theme {
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent-color: #0f172a;
+  --accent-glow: rgba(37, 99, 235, 0.18);
+  --accent-neon: #2563eb; /* Pro Blue accent for Light Mode */
+  --accent-secondary: #64748b;
+  --accent-contrast: #ffffff;
+  --control-bg: #ffffff;
+  --control-border: rgba(15, 23, 42, 0.16);
+  --error-text: #991b1b;
+  --error-bg: rgba(254, 242, 242, 0.98);
+  --error-border: rgba(239, 68, 68, 0.35);
+  
+  --border-color: rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  --sidebar-gradient: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-surface);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}
+
+/* Typography styles */
+h1, h2, h3, h4 {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Glassmorphism Card Utility */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+  padding: 24px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Loader Utility */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-surface-hover) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoad 2s infinite ease-in-out;
+  border-radius: var(--radius-md);
+}
+
+@keyframes skeletonLoad {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
