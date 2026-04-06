@@ -1,10 +1,11 @@
-# EAG v3 — Build-Your-Own Orchestrator: Agentic AI Course Summarizer
+# Agentic AI Course Summarizer
 
 An [Angular 21](https://angular.dev/) standalone application that transforms raw YouTube lecture transcripts into structured, navigable educational dashboards using the [Gemini API](https://ai.google.dev/gemini-api/docs). Instead of relying on rigid third-party frameworks, this app uses a custom, schema-driven orchestration layer to convert unstructured transcripts into a high-fidelity educational experience.
 
 Built for the **EAG v3 Agentic AI Cohort — Session 1 Assignment**.
 
 ### 🎥 [Watch the App Demo on YouTube](https://www.youtube.com/watch?v=DA9RXi07_T8)
+[![EAG v3 App Demo](https://img.youtube.com/vi/DA9RXi07_T8/maxresdefault.jpg)](https://www.youtube.com/watch?v=DA9RXi07_T8)
 
 ---
 
