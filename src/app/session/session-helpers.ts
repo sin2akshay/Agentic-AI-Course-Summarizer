@@ -1,25 +1,56 @@
 import { GeneratedData } from '../core/gemini';
 
-const DEPTH_KEYWORDS = ['orchestration', 'agent', 'mcp', 'rag', 'context', 'scaling', 'transformer', 'architecture', 'api', 'protocol', 'cognitive'];
+// Analytical question framing — any single match adds 1 point (not per keyword, to avoid stacking)
+const ANALYTICAL_SIGNALS = [
+  'how', 'why', 'difference', 'compare', 'versus', 'vs ', 'instead of',
+  'compared to', 'trade-off', 'limitation', 'implication', 'tradeoff'
+];
 
-export function calculateQuestionRating(question: string): number {
+// Tiered keyword list — each tier is scored and capped independently
+const KEYWORD_TIERS: { terms: string[]; weight: number }[] = [
+  {
+    // Tier 2 — recognisable AI/engineering concepts (each worth 0.5, tier capped at 1.0)
+    weight: 0.5,
+    terms: [
+      'agent', 'model', 'api', 'context', 'token', 'prompt',
+      'deploy', 'docker', 'pipeline', 'tool', 'inference', 'framework'
+    ]
+  },
+  {
+    // Tier 3 — advanced agentic AI / architectural concepts (each worth 1.0, tier capped at 2.0)
+    weight: 1.0,
+    terms: [
+      'orchestration', 'transformer', 'architecture', 'rag', 'mcp', 'memory',
+      'embedding', 'fine-tun', 'multi-agent', 'function call', 'attention',
+      'quantiz', 'grpc', 'planning', 'evaluation', 'benchmark', 'reasoning',
+      'protocol', 'cognitive', 'scaling'
+    ]
+  }
+];
+
+export function calculateQuestionRating(question: string, answer = ''): number {
+  const q = question.toLowerCase();
+
   let score = 1;
-  const normalizedQuestion = question.toLowerCase();
 
-  if (normalizedQuestion.includes('how') || normalizedQuestion.includes('why') || normalizedQuestion.includes('difference')) {
+  // +1 for analytical framing — fires once regardless of how many signals match
+  if (ANALYTICAL_SIGNALS.some((signal) => q.includes(signal))) {
     score += 1;
   }
 
-  const matches = DEPTH_KEYWORDS.filter((keyword) => normalizedQuestion.includes(keyword)).length;
-  if (matches > 0) {
-    score += Math.min(2, matches + 1);
+  // Tiered keyword scoring — each tier is capped at 2× its weight
+  for (const { terms, weight } of KEYWORD_TIERS) {
+    const matchCount = terms.filter((term) => q.includes(term)).length;
+    score += Math.min(weight * matchCount, weight * 2);
   }
 
-  if (question.length > 80) {
-    score += 1;
-  }
+  // Question complexity: long questions usually encode more sub-problems
+  if (question.length > 100) score += 0.5;
 
-  return Math.min(5, score);
+  // Answer depth: a long answer signals the question demanded real explanation
+  if (answer.length > 150) score += 0.5;
+
+  return Math.min(5, Math.round(score));
 }
 
 export function decorateGeneratedDataWithRatings(data: GeneratedData): GeneratedData {
@@ -27,7 +58,7 @@ export function decorateGeneratedDataWithRatings(data: GeneratedData): Generated
     ...data,
     qa: data.qa.map((question) => ({
       ...question,
-      rating: calculateQuestionRating(question.question)
+      rating: calculateQuestionRating(question.question, question.answer)
     }))
   };
 }
