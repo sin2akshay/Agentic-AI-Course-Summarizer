@@ -170,7 +170,7 @@ export class SessionComponent {
     const videoUrl = sessionMeta?.recordingUrl ?? '';
     this.videoUrl.set(videoUrl);
 
-    const videoId = this.resolveVideoId(sessionId, videoUrl);
+    const videoId = this.resolveVideoId(videoUrl);
     if (videoId) {
       this.safeVideoUrl.set(this.buildSafeVideoUrl(videoId));
     } else {
@@ -261,7 +261,9 @@ export class SessionComponent {
     const a = document.createElement('a');
     a.href = url;
     a.download = `session-${this.sessionId()}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
 
@@ -313,9 +315,8 @@ export class SessionComponent {
     );
   }
 
-  private resolveVideoId(sessionId: number, videoUrl: string): string | null {
-    const videoId = videoUrl ? this.ytService.extractVideoId(videoUrl) : null;
-    return sessionId === 1 && !videoId ? 'PsAQvHjxT7s' : videoId;
+  private resolveVideoId(videoUrl: string): string | null {
+    return videoUrl ? this.ytService.extractVideoId(videoUrl) : null;
   }
 
   private getErrorMessage(error: unknown): string {

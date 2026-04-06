@@ -157,13 +157,32 @@ export class GeminiService {
     const parsed = JSON.parse(outputText) as GeneratedData;
 
     if (
-      typeof parsed.sessionId !== 'number'
+      typeof parsed !== 'object' || parsed === null
+      || typeof parsed.sessionId !== 'number'
       || typeof parsed.sessionOverview !== 'string'
       || !Array.isArray(parsed.instructorTakeaways)
       || !Array.isArray(parsed.summary)
       || !Array.isArray(parsed.qa)
     ) {
       throw new Error('Gemini response did not match the expected session data structure');
+    }
+
+    if (!parsed.instructorTakeaways.every(
+      (item) => typeof item === 'object' && item !== null && typeof item.title === 'string' && typeof item.body === 'string'
+    )) {
+      throw new Error('Gemini response: instructorTakeaways items are malformed');
+    }
+
+    if (!parsed.summary.every(
+      (item) => typeof item === 'object' && item !== null && typeof item.timestamp === 'string' && typeof item.title === 'string'
+    )) {
+      throw new Error('Gemini response: summary items are malformed');
+    }
+
+    if (!parsed.qa.every(
+      (item) => typeof item === 'object' && item !== null && typeof item.question === 'string' && typeof item.answer === 'string'
+    )) {
+      throw new Error('Gemini response: qa items are malformed');
     }
 
     return parsed;
