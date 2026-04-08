@@ -45,3 +45,4 @@ Thumbs.db
 
 # Environments / Secrets
 /src/environments/environment.ts
+public/data/*
