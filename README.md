@@ -4,9 +4,8 @@ An [Angular 21](https://angular.dev/) standalone application that transforms raw
 
 Built for the **EAG v3 Agentic AI Cohort — Session 1 Assignment**.
 
-### 🎥 [Watch the App Demo on YouTube](https://www.youtube.com/watch?v=DA9RXi07_T8)
-[![EAG v3 App Demo](https://img.youtube.com/vi/DA9RXi07_T8/maxresdefault.jpg)](https://www.youtube.com/watch?v=DA9RXi07_T8)
-
+### 🎥 [Watch the App Demo on YouTube](https://www.youtube.com/watch?v=wyjDPx7xPHs)
+[![EAG v3 App Demo](https://img.youtube.com/vi/wyjDPx7xPHs/maxresdefault.jpg)](https://www.youtube.com/watch?v=wyjDPx7xPHs)
 ---
 
 ## 🏗️ Application Architecture
